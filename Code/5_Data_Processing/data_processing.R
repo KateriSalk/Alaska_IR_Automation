@@ -411,7 +411,7 @@ print('Check samples_table_units_not_matching variable for any sample units that
 
 #Grab only data whose units match
 data_16d <- data_16c %>%
-  filter(TADA.ResultMeasure.MeasureUnitCode == Units)
+  filter(TADA.ResultMeasure.MeasureUnitCode == Units| is.na(Units))
 
 #Export data summary
 write_csv(data_16d, file = file.path('Output/data_processing'
@@ -1000,7 +1000,7 @@ rm(df_AU_summary1, df_AU_summary2, df_AU_summary3, data_19)
 # Match using Data/data_processing/ML_AU_Crosswalk.CSV
 df_data_sufficiency <- read_csv("Data/data_processing/AK_DataSufficiency_Crosswalk_20240117.csv")
 df_data_sufficiency2 <- df_data_sufficiency %>% 
-  select(-c(`Constituent Group`, Constituent, `Use Description`
+  select(-c(`Constituent Group`, Constituent
             , `Other Requirements`, `Listing methodology`, Notes)) %>% 
   mutate(TADA.Fraction = toupper(Fraction)) %>% 
   select(`Waterbody Type`, TADA.Constituent, Fraction, TADA.Fraction, everything())
