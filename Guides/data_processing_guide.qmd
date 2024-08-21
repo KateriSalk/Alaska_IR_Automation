@@ -40,15 +40,15 @@ library(sf)
 This code has specific exterior files that are required for it to run. The inputs are listed below. Note, only the outputs from *data_pull.R* are loaded at the beginning of the script, whereas all others are loaded when needed farther into the script.
 
 | File Name                                              | Purpose                                      | Source                   |
-|--------------------------------------------------------|----------------------------------------------|--------------------------|
+|------------------------------|-------------------------|-----------------|
 | .CSV outputs (varies by site types from *data_pull.R*) | WQ data to be processed.                     | WQP (via *data_pull.R*). |
 | WQ_Column_Manager.csv                                  | Quickly subset WQ dataset fields.            | Tetra Tech               |
 | ML_AU_Crosswalk.csv                                    | Crosswalk Monitoring Locations with AUs/     | AK DEC                   |
-| AK_DataSufficiency_Crosswalk_20231012.csv              | Determine data sufficiency per AU/pollutant. | AK DEC                   |
-| Beaches.shp                                            | Beaches AU shapefile for mapping.            | AK DEC                   |
-| Lakes.shp                                              | Lakes AU shapefile for mapping.              | AK DEC                   |
-| MAUs_FINAL_2023.shp                                    | Marine AU shapefile for mapping.             | AK DEC                   |
-| Rivers.shp                                             | Rivers AU shapefile for mapping.             | AK DEC                   |
+| AK_DataSufficiency_Crosswalk_YYYYMMDD.csv              | Determine data sufficiency per AU/pollutant. | AK DEC                   |
+| beaches.shp                                            | Beaches AU shapefile for mapping.            | AK DEC                   |
+| bakes.shp                                              | Lakes AU shapefile for mapping.              | AK DEC                   |
+| marine.shp                                             | Marine AU shapefile for mapping.             | AK DEC                   |
+| rivers.shp                                             | Rivers AU shapefile for mapping.             | AK DEC                   |
 | cb_2018_us_state_500k.shp                              | US States shapefile for mapping.             | Tetra Tech               |
 
 : Exterior files required by data_processing.R to function properly, the purpose of each file within the code, and their source.
@@ -162,7 +162,7 @@ Section #2 uses the flags from Section #1 to remove erroneous data. This section
 
 15. The *WQ_Column_Manager.csv* is read in and the 'Keep_YN' column is used to filter out unnecessary columns. A quality control check ensures that the external manager file is up to date and prompts the user for an update if any new columns are detected in the WQ dataset.
 
-16. The WQ dataset is trimmed by removing invalid data (mainly from *TADA* function fields) (see the code chunk below). The user can also review the data summary table generated in Step #14 to inform additional trimming steps. Note, that at the time of development, outputs from some *TADA* functions did not match the outputs described in the R documentation, therefore, the following crosswalk was assumed (see comments):
+16. The WQ dataset is trimmed by removing invalid data and matching the sample units with their required units in the standards (mainly from *TADA* function fields) (see the code chunk below). The user can also review the data summary table generated in Step #14 to inform additional trimming steps. Note, that at the time of development, outputs from some *EPATADA* functions did not match the outputs described in the R documentation, therefore, the following crosswalk was assumed (see comments):
 
     ```{r}
     #| eval: false
@@ -176,14 +176,117 @@ Section #2 uses the flags from Section #1 to remove erroneous data. This section
     #                  "MethodNeeded")
 
     data_16 <- data_15 %>% 
-      filter(TADA.ResultUnit.Flag != "Rejected") %>% # Step 1
-      filter(TADA.SampleFraction.Flag != "Rejected") %>% # Step 2
-      filter(TADA.MethodSpeciation.Flag != "Rejected") %>% # Step 3
-      filter(TADA.AnalyticalMethod.Flag != "Rejected") %>% # Step 7
+      filter(TADA.ResultUnit.Flag != "Rejected" 
+             & TADA.ResultUnit.Flag != "Invalid") %>% # Step 1
+      filter(TADA.SampleFraction.Flag != "Rejected" 
+             & TADA.SampleFraction.Flag != "Invalid") %>% # Step 2
+      filter(TADA.MethodSpeciation.Flag != "Rejected" 
+             & TADA.MethodSpeciation.Flag != "Invalid") %>% # Step 3
+      filter(TADA.AnalyticalMethod.Flag != "Rejected" 
+             & TADA.AnalyticalMethod.Flag != "Invalid") %>% # Step 7
+      filter(TADA.SingleOrgDupGroupID == "Not a duplicate"
+             | (TADA.SingleOrgDupGroupID != "Not a duplicate"
+                & TADA.SingleOrgDup.Flag == "Unique")) %>% # Step 8
       filter(TADA.ActivityType.Flag == 'Non_QC') %>% # Step 9
-      filter(TADA.MeasureQualifierCode.Flag != 'Suspect') %>% # Step 11
+      filter(TADA.MeasureQualifierCode.Flag != 'Suspect'
+             & TADA.MeasureQualifierCode.Flag != 'Reject') %>% # Step 11
       filter(TADA.ActivityMediaName == 'WATER') # Remove non-water samples
     # censored data are retained in this dataset.
+
+    #Units check - compare sample units to WQS units
+    wqs_table_units <- read_csv('Data/data_analysis/AK_WQS_Crosswalk_20240514.csv') %>% #dec change
+      select(TADA.Constituent, Units) %>%
+      unique() %>%
+      na.omit() %>%
+      mutate(Units = toupper(Units))
+
+    #Join WQS units to sample data
+    data_16b <- data_16 %>% 
+      left_join(wqs_table_units, by = c('TADA.CharacteristicName' = 'TADA.Constituent')) 
+
+    #Nitrite and Nitrate conversion factors from:
+    #https://environment.des.qld.gov.au/__data/assets/pdf_file/0022/90148/data-handling-units-and-concentrations.pdf
+
+    data_16c <- data_16b %>%
+      #Convert the numeric results
+      mutate(TADA.ResultMeasureValue = case_when(TADA.ResultMeasure.MeasureUnitCode == 'MG/L' &
+                                                   Units == 'UG/L' ~
+                                                   TADA.ResultMeasureValue*1000,
+                                                 TADA.ResultMeasure.MeasureUnitCode == 'UG/L' &
+                                                   Units == 'MG/L'~
+                                                   TADA.ResultMeasureValue/1000,
+                                                 TADA.ResultMeasure.MeasureUnitCode == 'MG/L AS P' &
+                                                   Units == 'UG/L'~
+                                                   TADA.ResultMeasureValue*1000,
+                                                 TADA.ResultMeasure.MeasureUnitCode == 'MG/L CACO3' &
+                                                   Units == 'UG/L'~
+                                                   TADA.ResultMeasureValue*1000,
+                                                 TADA.ResultMeasure.MeasureUnitCode == 'UG/KG' & #1 ug/kg = 1 ug/L
+                                                   Units == 'MG/L' ~ #ug/L to mg/L
+                                                   TADA.ResultMeasureValue/1000,
+                                                 TADA.ResultMeasure.MeasureUnitCode == 'MG/L ASNO3' &
+                                                   Units == 'UG/L'~
+                                                   (TADA.ResultMeasureValue/4.43)*1000, #1 mg/L of nitrate NO3-N = 4.43mg/L NO3
+                                                 TADA.ResultMeasure.MeasureUnitCode == 'MG/L ASNO2' &
+                                                   Units == 'UG/L'~
+                                                   (TADA.ResultMeasureValue/3.28)*1000, #1 mg/L of nitrite NO2-N = 3.28mg/L NO2
+                                                 TADA.ResultMeasure.MeasureUnitCode == 'MG/L AS N' &
+                                                   Units == 'UG/L'~
+                                                   TADA.ResultMeasureValue*1000,
+                                                 T ~ TADA.ResultMeasureValue),
+             #Convert the units to match WQS
+             TADA.ResultMeasure.MeasureUnitCode = case_when(TADA.ResultMeasure.MeasureUnitCode == 'MG/L' &
+                                                              Units == 'UG/L' ~
+                                                              'UG/L',
+                                                            TADA.ResultMeasure.MeasureUnitCode == 'UG/L' &
+                                                              Units == 'MG/L'~
+                                                              'MG/L',
+                                                            TADA.ResultMeasure.MeasureUnitCode == 'MG/L AS P' &
+                                                              Units == 'UG/L'~
+                                                              'UG/L',
+                                                            TADA.ResultMeasure.MeasureUnitCode == 'MPN/100 ML' &
+                                                              Units == 'CFU/100ML' ~
+                                                              'CFU/100ML',
+                                                            TADA.ResultMeasure.MeasureUnitCode == 'CFU/100ML' &
+                                                              Units == 'MPN/100ML'~
+                                                              'MPN/100ML',
+                                                            TADA.ResultMeasure.MeasureUnitCode == 'MPN/100ML' &
+                                                              Units == 'CFU/100ML'~
+                                                              'CFU/100ML',
+                                                            TADA.ResultMeasure.MeasureUnitCode == 'MG/L CACO3' &
+                                                              Units == 'UG/L'~
+                                                              'UG/L',
+                                                            TADA.ResultMeasure.MeasureUnitCode == 'UG/KG' & 
+                                                              Units == 'MG/L' ~ 
+                                                              'MG/L',
+                                                            TADA.ResultMeasure.MeasureUnitCode == 'MG/L ASNO3' &
+                                                              Units == 'UG/L'~
+                                                              'UG/L', 
+                                                            TADA.ResultMeasure.MeasureUnitCode == 'MG/L ASNO2' &
+                                                              Units == 'UG/L'~
+                                                              'UG/L',
+                                                            TADA.ResultMeasure.MeasureUnitCode == 'MG/L AS N' &
+                                                              Units == 'UG/L'~
+                                                              'UG/L',
+                                                            is.na(TADA.ResultMeasure.MeasureUnitCode) & # dec added 7-30-24
+                                                              Units == 'SU'~#dec added 7-30-24
+                                                              'SU',#dec added 7-30-24
+                                                            T ~ TADA.ResultMeasure.MeasureUnitCode)) #dec added 7-30-24
+
+
+    #Find which units were not fixable by simple conversion
+    #Requires manual intervention
+    samples_table_units_not_matching <- data_16c %>%
+      filter(TADA.ResultMeasure.MeasureUnitCode != Units) %>%
+      select(TADA.CharacteristicName, TADA.ResultMeasure.MeasureUnitCode, Units) %>%
+      unique()
+
+    print('Check samples_table_units_not_matching variable for any sample units that do not match the WQS table.')
+
+    #Grab only data whose units match
+    data_16d <- data_16c %>%
+      filter(TADA.ResultMeasure.MeasureUnitCode == Units | is.na(Units)) #DEC change
+
     ```
 
 17. Create boxplots and log10 boxplots of each unique 'TADA.CharacteristicName' and site type through a for loop. Before the boxplots are created, NA values in 'TADA.ResultMeasureValue' are filtered out. Each site type is manually assigned a different color. These boxplots are exported to pdf for visual review. The following is an example boxplot for water temperature:
@@ -288,4 +391,4 @@ This section aims to explore the data within each AU and provide summary statist
 
 The final section of the code compares the data sufficiency needs for AK DEC's Integrated Reporting process with the WQ data actually available. This section provides a final output that designates whether there is sufficient data for a given AU and pollutant combinations for assessment purposes.
 
-22. Read in *AK_DataSufficiency_Crosswalk_20231012.csv*. For each AU in the WQ dataset, the data sufficiency table is filtered by waterbody type and the corresponding constituents. The number of samples and number of years of data for each constituent within a given AU is compared to the minimum requirements. If sufficient data is available, that constituent can be used at the assessment level for the given AU. Conversely, if insufficient, the data can only be used at the screening level.
+22. Read in *AK_DataSufficiency_Crosswalk_YYYYMMDD.csv*. For each AU in the WQ dataset, the data sufficiency table is filtered by waterbody type and the corresponding constituents. The number of samples and number of years of data for each constituent within a given AU is compared to the minimum requirements. If sufficient data is available, that constituent can be used at the assessment level for the given AU. Conversely, if insufficient, the data can only be used at the screening level.
