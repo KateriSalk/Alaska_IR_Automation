@@ -1,0 +1,133 @@
+ColumnName,Class,NumberUniqueValues,UniqueValues
+TADA.ResultDepthHeightMeasure.MeasureValueDataTypes.Flag,character,1,NA - Not Available
+TADA.ActivityTopDepthHeightMeasure.MeasureValueDataTypes.Flag,character,1,NA - Not Available
+TADA.ActivityBottomDepthHeightMeasure.MeasureValueDataTypes.Flag,character,1,NA - Not Available
+TADA.MultipleOrgDuplicate,character,1,N
+TADA.MultipleOrgDupGroupID,character,1,Not a duplicate
+TADA.ResultSelectedMultipleOrgs,character,1,Y
+CountryCode,character,1,US
+StateCode,character,1,02
+TADA.MethodSpeciation.Flag,character,2,Not Reviewed; Accepted
+TADA.Harmonized.Flag,logical,2,FALSE; TRUE
+TADA.DetectionQuantitationLimitMeasure.MeasureValueDataTypes.Flag,character,2,NA - Not Available; Numeric
+TADA.CensoredMethod,character,2,NA; Detection Limit Value Multiplied by 0.5
+TADA.ActivityDepthHeightMeasure.MeasureValueDataTypes.Flag,character,2,NA - Not Available; Numeric
+TADA.ActivityDepthHeightMeasure.MeasureUnitCode,character,2,NA; m
+TADA.SingleOrgDup.Flag,character,2,Unique; Duplicate
+TADA.InvalidCoordinates.Flag,character,2,OK; Imprecise_lessthan3decimaldigits
+VerticalMeasure.MeasureUnitCode,character,2,feet; NA
+VerticalAccuracyMeasure.MeasureUnitCode,character,2,feet; NA
+ProviderName,character,2,NWIS; STORET
+TADA.SampleFraction.Flag,character,3,Not Reviewed; Accepted; Rejected
+TADA.WQXResultUnitConversion,character,3,Convert; No Target Unit; No Result Value
+TADA.AnalyticalMethod.Flag,character,3,Not Reviewed; Valid; Invalid
+TADA.MeasureQualifierCode.Flag,character,3,Pass; NA; Suspect
+SamplingDesignTypeCode,character,3,"NA; Targeted - A targeted sample is where a ""sample"" of the subject matter; be that people; plants/animals etc is selected using certain criteria; i.e. pregnant mothers between the ages of 25-30. Targeted samples are usually used by businesses or companies carrying out surveys on a particular group of people.; Probabilistic - A probability sampling method is any method of sampling that utilizes some form of random selection. In order to have a random selection method; you must set up some process or procedure that assures that the different units in your population have equal probabilities of being chosen."
+QAPPApprovedIndicator,character,3,NA; Y; N
+ActivityEndTime.TimeZoneCode,character,3,NA; AKDT; AKST
+ResultWeightBasisText,character,3,NA; Dry; Sampled
+ResultTemperatureBasisText,character,3,NA; 180 deg C; 25 deg C
+timeZoneStart,numeric,3,8; 9; NA
+timeZoneEnd,numeric,3,NA; 8; 9
+HorizontalAccuracyMeasure.MeasureUnitCode,character,3,seconds; Unknown; NA
+VerticalCoordinateReferenceSystemDatumName,character,3,NGVD29; NAVD88; NA
+DrainageAreaMeasure.MeasureUnitCode,character,3,sq mi; NA; m
+ActivityMediaName,character,4,Water; Other; Sediment; Air
+TADA.ActivityMediaName,character,4,WATER; OTHER; SEDIMENT; AIR
+TADA.ResultUnit.Flag,character,4,Accepted; Not Reviewed; NonStandardized; Rejected
+ResultValueTypeName,character,4,Actual; Estimated; Calculated; NA
+TADA.ResultValueAboveUpperThreshold.Flag,character,4,Not Reviewed; Pass; Suspect; NA - Not Available
+TADA.ResultValueBelowLowerThreshold.Flag,character,4,Not Reviewed; Pass; Suspect; NA - Not Available
+ResultTimeBasisText,character,4,NA; 1 Day; 24 Hours; Daily
+HorizontalCoordinateReferenceSystemDatumName,character,4,NAD83; WGS84; OTHER; NAD27
+ResultParticleSizeBasisText,character,4,NA; < 0.0625 mm; <0.063 mm; >0.063 mm
+SourceMapScaleNumeric,numeric,4,63360; 25000; NA; 24000
+TADA.ActivityType.Flag,character,5,Non_QC; QC_replicate; Not Reviewed; QC_blank; QC_duplicate
+TADA.SpeciationAssumptions,character,5,NA; Assumes AS N; Assumes AS P; Converts speciation and result values from AS NH3 to AS N; Converts speciation and result values from AS NO2 to AS N
+TADA.CensoredData.Flag,character,5,Uncensored; Non-Detect; Detection condition is missing and required for censored data ID.; Conflict between Condition and Limit; Detection condition or detection limit is not documented in TADA reference tables.
+ActivityRelativeDepthName,character,5,NA; Surface; Photic zone; Midwater; Sediment Water
+ActivityDepthHeightMeasure.MeasureUnitCode,character,5,NA; feet; m; cm; ft
+TADA.MethodSpeciationName,character,6,NA; AS N; AS P; AS CACO3; AS NH3; AS NO2+NO3
+ActivityStartTime.TimeZoneCode,character,6,AKDT; AKST; AST; NA; ADT; PST
+ResultStatusIdentifier,character,6,Accepted; Preliminary; Final; Provisional; Unreviewed; Rejected
+StatisticalBaseCode,character,7,NA; Mean; mean; Minimum; Maximum; Median; Sum
+QAPPApprovalAgencyName,character,7,NA; ADEC; AK DEC; Various; EPA; Alaska Department of Environmental Conservation; DEC
+MonitoringLocationTypeName,character,7,Stream; Lake; Reservoir; Impoundment; River/Stream; Lake; Ocean; BEACH Program Site-Ocean; Estuary
+ActivityMediaSubdivisionName,character,8,Surface Water; NA; Ocean Water; Deionized Water; Unknown; Surface Water Sediment; Surface Soil/Sediment; Ambient Air
+TADA.ResultMeasureValueDataTypes.Flag,character,8,Numeric; Result Value/Unit Estimated from Detection Limit; Text; Percentage; NA - Not Available; Less Than; Result Value/Unit Copied from Detection Limit; Greater Than
+ResultDetectionConditionText,character,8,NA; Not Detected; Detected Not Quantified; Not Detected at Reporting Limit; Not Detected at Detection Limit; Not Reported; Present Below Quantification Limit; Present Above Quantification Limit
+HydrologicCondition,character,8,Stable; normal stage; Stable; low stage; Rising stage; Stable; high stage; Falling stage; Peak stage; Not determined; NA
+HydrologicEvent,character,8,Routine sample; Under ice cover; Snowmelt; Flood; Glacial lake outbreak; Not applicable; Volcanic action; NA
+TADA.CharacteristicNameAssumptions,character,9,NA; Assumes NITROGEN is synonymous with TOTAL NITROGEN; MIXED FORMS.; Assumes oxygen as dissolved fraction equivalent to Dissolved Oxygen (DO); Assumes NITROGEN; MIXED FORMS (NH3); (NH4); ORGANIC; (NO2) AND (NO3) is synonymous to TOTAL NITROGEN; MIXED FORMS.; Assumes PHOSPHORUS is synonymous to TOTAL PHOSPHORUS; MIXED FORMS.; Assumes KJELDAHL NITROGEN; TOTAL is synonymous to TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3); UNFILTERED.; Assumes PHOSPHATE-PHOSPHORUS is synonymous to PHOSPHATE; Assumes AMMONIA-NITROGEN is synonymous to AMMONIA.; Assumes TOTAL KJELDAHL NITROGEN is synonymous to TOTAL KJELDAHL NITROGEN (ORGANIC N & NH3).
+MethodSpeciationName,character,9,NA; unknown; as N; None; as P; as CaCO3; as NH3; as NO2; as NO2+NO3
+HorizontalAccuracyMeasure.MeasureValue,character,9,1; 10; 5; .1; 3; Unknown; .5; .01; NA
+SampleCollectionMethod.MethodIdentifierContext,character,10,USGS; USGS parameter code 82398; NA; CHICKALOONNATIVEVILLAGE_WQX; USFWS_ALASKA; AKDECWQ; GTC_WQX; LEVELOCK; AKDECAKMAP; 21AKBCH
+HorizontalCollectionMethodName,character,10,Interpolated from MAP.; GNSS3 - Level 3 Quality Survey Grade Global Navigation Satellite System; Mapping grade GPS unit (handheld accuracy range 12 to 40 ft); Interpolated from Digital MAP.; GPS Code (Pseudo Range) Differential; GPS-Unspecified; Interpolation-Satellite; Interpolation-Digital Map Source; Interpolation-Other; Unknown
+VerticalCollectionMethodName,character,10,Interpolated from topographic map.; Survey-grade GPSF; GNSS3 - Level 3 Quality Survey Grade Global Navigation Satellite System; Level or other surveyed method.; Unknown.; Reported method of determination.; NA; Differentially corrected Global Positioning System.; GNSS4 - Level 4 Quality Survey Grade Global Navigation Satellite System; Interpolated from Digital Elevation Model
+OrganizationIdentifier,character,12,Too Many to list!
+OrganizationFormalName,character,12,Too Many to list!
+ActivityTypeCode,character,14,Too Many to list!
+DetectionQuantitationLimitTypeName,character,15,Too Many to list!
+ResultAnalyticalMethod.MethodIdentifierContext,character,15,Too Many to list!
+VerticalAccuracyMeasure.MeasureValue,numeric,15,Too Many to list!
+ResultSampleFractionText,character,16,Too Many to list!
+TADA.ResultSampleFractionText,character,17,Too Many to list!
+TADA.FractionAssumptions,character,23,Too Many to list!
+ActivityConductingOrganizationText,character,23,Too Many to list!
+SampleCollectionEquipmentName,character,26,Too Many to list!
+CountyCode,character,29,Too Many to list!
+SampleCollectionMethod.MethodDescriptionText,character,35,Too Many to list!
+TADA.DetectionQuantitationLimitMeasure.MeasureUnitCode,character,36,Too Many to list!
+DetectionQuantitationLimitMeasure.MeasureUnitCode,character,39,Too Many to list!
+ActivityDepthHeightMeasure.MeasureValue,numeric,41,Too Many to list!
+ResultLaboratoryCommentText,character,43,Too Many to list!
+ProjectFileUrl,character,44,Too Many to list!
+SampleCollectionMethod.MethodName,character,45,Too Many to list!
+TADA.ActivityDepthHeightMeasure.MeasureValue,numeric,47,Too Many to list!
+SampleCollectionMethod.MethodIdentifier,character,51,Too Many to list!
+MeasureQualifierCode,character,52,Too Many to list!
+TADA.MeasureQualifierCode.Def,character,52,Too Many to list!
+TADA.ResultMeasure.MeasureUnitCode,character,53,Too Many to list!
+LaboratoryName,character,54,Too Many to list!
+ProjectDescriptionText,character,57,Too Many to list!
+HUCEightDigitCode,numeric,63,Too Many to list!
+DrainageAreaMeasure.MeasureValue,numeric,66,Too Many to list!
+ResultMeasure.MeasureUnitCode,character,67,Too Many to list!
+ProjectName,character,69,Too Many to list!
+VerticalMeasure.MeasureValue,numeric,69,Too Many to list!
+ProjectIdentifier,character,70,Too Many to list!
+ResultAnalyticalMethod.MethodDescriptionText,character,104,Too Many to list!
+ActivityCommentText,character,130,Too Many to list!
+MonitoringLocationDescriptionText,character,183,Too Many to list!
+ResultAnalyticalMethod.MethodName,character,189,Too Many to list!
+ActivityEndDate,Date,189,Too Many to list!
+ResultAnalyticalMethod.MethodIdentifier,character,196,Too Many to list!
+ActivityEndTime.Time,hms; difftime,411,Too Many to list!
+MonitoringLocationName,character,467,Too Many to list!
+USGSPCode,character,468,Too Many to list!
+TADA.MonitoringLocationIdentifier,character,575,Too Many to list!
+LongitudeMeasure,numeric,580,Too Many to list!
+TADA.LongitudeMeasure,numeric,580,Too Many to list!
+TADA.CharacteristicName,character,584,Too Many to list!
+LatitudeMeasure,numeric,584,Too Many to list!
+TADA.LatitudeMeasure,numeric,584,Too Many to list!
+CharacteristicName,character,588,Too Many to list!
+TADA.DetectionQuantitationLimitMeasure.MeasureValue,numeric,601,Too Many to list!
+DetectionQuantitationLimitMeasure.MeasureValue,numeric,602,Too Many to list!
+MonitoringLocationIdentifier,character,602,Too Many to list!
+ResultCommentText,character,608,Too Many to list!
+ActivityLocation.LatitudeMeasure,numeric,843,Too Many to list!
+ActivityLocation.LongitudeMeasure,numeric,853,Too Many to list!
+ActivityEndDateTime,POSIXct; POSIXt,886,Too Many to list!
+ActivityStartDate,Date,924,Too Many to list!
+ActivityStartTime.Time,hms; difftime,1034,Too Many to list!
+TADA.ComparableDataIdentifier,character,1151,Too Many to list!
+AnalysisStartDate,Date,1396,Too Many to list!
+TADA.SingleOrgDupGroupID,character,4305,Too Many to list!
+LastUpdated,POSIXct; POSIXt,4696,Too Many to list!
+ActivityStartDateTime,POSIXct; POSIXt,10695,Too Many to list!
+ResultMeasureValue,character,11788,Too Many to list!
+TADA.ResultMeasureValue,numeric,13836,Too Many to list!
+ResultDetectionQuantitationLimitUrl,character,28313,Too Many to list!
+ActivityIdentifier,character,35527,Too Many to list!
+ResultIdentifier,character,119970,Too Many to list!
