@@ -11,10 +11,10 @@ library(rmarkdown)
 
 
 ####Read in data####
-output_df <- read_csv(file = "Output/results/categorized_simplified_aus_20240703.csv")  # path to file
-wqs_table <- read_csv(file = 'Data/data_analysis/AK_WQS_Crosswalk_20240507.csv')
-output_samples <- read_csv(file = 'Output/data_processing/WQ_data_trimmed_long_withAU20240702.csv')
-ml_au_crosswalk <- read_csv(file = 'Data/data_processing/ML_AU_Crosswalk.csv')
+output_df <- read_csv(file = "Output/results/categorized_simplified_aus_20240819.csv")  # path to file
+wqs_table <- read_csv(file = 'Data/data_analysis/AK_WQS_Crosswalk_20240514.csv')
+output_samples <- read_csv(file = 'Output/data_processing/WQ_data_trimmed_long_withAU20240819.csv')
+ml_au_crosswalk <- read_csv(file = 'Data/data_processing/ML_AU_Crosswalk20240809.csv')
 au_shape_crs <-st_read('Data/data_GIS/AU_Shapefiles_Corrected_20240328/marine.shp') %>%
   st_crs()
 
@@ -82,9 +82,11 @@ boxPlot <- function(data, WQS_table, AU_ID) {
                      , axis.text = ggplot2::element_text(family = "Open_Sans", size = 22)
                      , legend.background = element_rect(colour = 'gray60', fill = 'white', linetype='dashed')
                      , plot.margin = unit(c(0.5,0.25,0.5,0.25), "cm")) +
-      ggplot2::guides(fill = ggplot2::guide_legend(nrow = ceiling(length(unique(filt$MonitoringLocationIdentifier))/3)))+
-    guides(fill = guide_legend(title.position="top", title.hjust = 0.5))
-    
+      ggplot2::guides(fill = ggplot2::guide_legend(nrow = ceiling(length(unique(filt$MonitoringLocationIdentifier))/3),
+                                                   byrow=TRUE,
+                                                   title.position="top",
+                                                   title.hjust = 0.5))
+
     results[[counter]] <- plt
   }
   return(results)
@@ -141,18 +143,21 @@ timeSeries <- function(data, WQS_table, AU_ID) {
                      , axis.text = ggplot2::element_text(family = "Open_Sans", size = 22)
                      , legend.background = element_rect(colour = 'gray60', fill = 'white', linetype='dashed')
                      , plot.margin = unit(c(0.5,0.25,0.5,0.25), "cm")) +
-      ggplot2::guides(fill = ggplot2::guide_legend(nrow = ceiling(length(unique(filt$MonitoringLocationIdentifier))/3))) +
-      guides(fill = guide_legend(title.position="top", title.hjust = 0.5))
-    
+      ggplot2::guides(fill = ggplot2::guide_legend(nrow = ceiling(length(unique(filt$MonitoringLocationIdentifier))/3),
+                                                   byrow=TRUE,
+                                                   title.position="top",
+                                                   title.hjust = 0.5))
     results[[counter]] <- plt
   }
   return(results)
 }
 
 #### Loop ####
-# au_loop <- unique_AU$AUID_ATTNS[[2]]
+au_loop <- unique_AU$AUID_ATTNS
+# au_loop <- unique_AU$AUID_ATTNS[1:15]
 # au_loop <- 'AK_M_1030305_003'
-
+# au_loop <- 'AK_B_1010203_001'
+# au_loop <- 'AK_M_2020120_011'
 no_html <- list()
 count <- 1
 

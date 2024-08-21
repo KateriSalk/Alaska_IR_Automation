@@ -45,7 +45,8 @@ output_df_au %>%
          n = n(),
          is_2 = sum(ifelse(Use_Category == 2, 1, 0)),
          is_3 = sum(ifelse(Use_Category == 3, 1, 0)),
-         is_5 = sum(ifelse(Use_Category == 5, 1, 0)),
+         is_5 = sum(ifelse(Use_Category == 5 | Use_Category == "4a" |
+                             Use_Category == "4b", 1, 0)),
          #If n > 1, choose worse category
          new_Category = case_when(n > 1 & is_5 > 0 ~
                                     5,
@@ -168,15 +169,27 @@ output_df_au %>%
 output_df_au %>%
   filter(!is.na(n_Samples)) %>%
   mutate(Attainment = case_when(Individual_Category == 3 ~
+                                  'Not enough information',
+                                Individual_Category == 2 ~
+                                  'Attaining',
+                                Individual_Category == "4b" ~
+                                  'Not Attaining',
+                                Individual_Category == "4a" ~
+                                  'Not Attaining',
+                                Individual_Category == 5 ~
+                                  'Not attaining'),
+         `Previous Attainment` = case_when(PARAM_ATTAINMENT_CODE_new == 3 ~
                                           'Not enough information',
-                                        Individual_Category == 2 ~
+                                        PARAM_ATTAINMENT_CODE_new == 2 ~
                                           'Attaining',
-                                        Individual_Category == 5 ~
-                                          'Not attaining')) %>%
+                                        PARAM_ATTAINMENT_CODE_new == 5 ~
+                                          'Not attaining',
+                                        T ~ '—')) %>%
     select(
     Parameter = TADA.CharacteristicName,
     `Designated Use` = Use,
     Attainment,
+    `Previous Attainment`,
     `# of Samples` = n_Samples,
     `# of Sample Dates` = n_SampDates) %>% 
   unique() %>%
