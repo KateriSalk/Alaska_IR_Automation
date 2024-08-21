@@ -14,7 +14,7 @@ categorize_output <- read_csv('Output/results/categorized_aus_20240819.csv')
 
 #Select just the needed columns
 table_cat <- categorize_output %>% 
-  select(AUID_ATTNS, `Waterbody Type`, Use, Use_Category) %>%
+  select(AUID_ATTNS, `Waterbody Type`, Use, `Use Description`, Use_Category) %>%
   unique()
 
 #Load in AU shapefiles
@@ -65,8 +65,7 @@ final_summary <- data_all_AUs %>%
                                    Use_Category == '4a' ~ 'Not Supporting',
                                    Use_Category == '4b' ~ 'Not Supporting',
                                    T ~ NA)) %>% 
-  select(AUID_ATTNS, `Waterbody Type`, Use, Use_Category, overallStatus, 
-         Name_AU, Shape_4_Summary, AU_Shape_Unit) %>%
+  select(AUID_ATTNS, `Waterbody Type`, Use, `Use Description`, Use_Category,
+         overallStatus, Name_AU, Shape_4_Summary, AU_Shape_Unit) %>%
   unique() 
-
-write_csv(final_summary, 'Output/results/summary_au_tables_20240819.csv')
+write_csv(final_summary, 'Output/results/summary_au_tables_20240821.csv')
