@@ -6,11 +6,32 @@
 library(tidyverse)
 
 ####Load in data####
-input_analysis <- read_csv('Output/data_analysis/final_magdurfreq_output_20240703.csv')
+input_analysis <- read_csv('Output/data_analysis/final_magdurfreq_output_20240819.csv')
 
-options <- input_analysis %>%
-  select(Exceed) %>%
-  unique()
+assessments <- read_csv('Data/data_analysis/assessments.csv') %>%
+  select(ASSESSMENT_UNIT_ID = assessmentUnitId,
+         PARAM_NAME = parameterName,
+         ATTAINS_USE = useName,
+         PARAM_STATUS_NAME = parameterStatus,
+         PARAM_ATTAINMENT_CODE = parameterAttainment)
+
+#Don't want to overwrite previous ATTAINs 2s and 5s with new 3s
+merge_uses <- input_analysis %>%
+  mutate(ATTAINS_waterbody = case_when(`Waterbody Type` == 'Freshwater' ~
+                                         'FRESH WATER',
+                                       T ~ 'MARINE WATER'),
+         ATTAINS_USE_merge = paste0(ATTAINS_waterbody, ' / ',  Use, ' / ', `Use Description`)) %>%
+  left_join(assessments, by = c('AUID_ATTNS' = 'ASSESSMENT_UNIT_ID',
+                                'TADA.CharacteristicName' = 'PARAM_NAME', 
+                                'ATTAINS_USE_merge' = 'ATTAINS_USE')) %>%
+  mutate(PARAM_ATTAINMENT_CODE_new = case_when(PARAM_ATTAINMENT_CODE == "Not meeting criteria" ~ 
+                                             '5', 
+                                             PARAM_ATTAINMENT_CODE == "Meeting criteria" ~
+                                             '2', 
+                                             PARAM_ATTAINMENT_CODE == "Not enough information" ~
+                                             '3', 
+                                           T ~
+                                             NA))
 
 categorize_AU_uses <- function(input_analysis, simplify_standards){ 
   
@@ -20,11 +41,14 @@ categorize_AU_uses <- function(input_analysis, simplify_standards){
     filter(Exceed != 'AU not lake waters') %>%
     filter(Exceed != 'Natural conditions less than or equal to 50 NTU') %>%
     dplyr::mutate(Individual_Category = case_when(is.na(Data_Sufficient) ~ NA,
+                                                  (PARAM_ATTAINMENT_CODE_new != '3' &
+                                                    Data_Sufficient == 'No') ~
+                                                    PARAM_ATTAINMENT_CODE_new,
                                                   Data_Sufficient == "No" ~ '3',
-                                           Exceed == 'Yes' ~ '5',
-                                           Exceed == 'No' ~ '2',
-                                           Exceed == 'Insufficient hardness' ~ '3',
-                                           Exceed == 'Insufficient dependent data' ~ '3',
+                                                  Exceed == 'Yes' ~ '5',
+                                                  Exceed == 'No' ~ '2',
+                                                  Exceed == 'Insufficient hardness' ~ '3',
+                                                  Exceed == 'Insufficient dependent data' ~ '3',
                                            T ~ NA))
   
   if(simplify_standards == T){
@@ -52,7 +76,7 @@ categorize_AU_uses <- function(input_analysis, simplify_standards){
   
   
   calc_overall <- mid_step %>%
-    dplyr::group_by(AUID_ATTNS, Use) %>%
+    dplyr::group_by(AUID_ATTNS, Use, `Use Description`) %>%
     dplyr::mutate(cat_5_present = length(Individual_Category[Individual_Category=='5']),
            cat_2_present = length(Individual_Category[Individual_Category=='2']),
            Use_Category = case_when(cat_5_present > 0 ~ '5',
@@ -66,11 +90,11 @@ categorize_AU_uses <- function(input_analysis, simplify_standards){
   
 }
 
-output <- categorize_AU_uses(input_analysis, simplify_standards = F)
-output_simp <- categorize_AU_uses(input_analysis, simplify_standards = T)
+output <- categorize_AU_uses(merge_uses, simplify_standards = F)
+output_simp <- categorize_AU_uses(merge_uses, simplify_standards = T)
 
-write_csv(output, 'Output/results/categorized_aus_20240703.csv')
-write_csv(output_simp, 'Output/results/categorized_simplified_aus_20240703.csv')
+write_csv(output, 'Output/results/categorized_aus_20240819.csv')
+write_csv(output_simp, 'Output/results/categorized_simplified_aus_20240819.csv')
 
 
 

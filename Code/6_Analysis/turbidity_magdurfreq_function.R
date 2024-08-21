@@ -8,9 +8,9 @@ library(tidyverse)
 set.seed(42)
 
 #Load in data
-input_samples <- read_csv('Output/data_processing/WQ_data_trimmed_long_withAU20240702.csv')
-input_sufficiency <- read_csv('Output/data_processing/WQ_metadata_trimmed_with_data_sufficiency_20240806.csv')
-wqs_crosswalk <- read_csv('Data/data_analysis/AK_WQS_Crosswalk_20240507.csv')
+input_samples <- read_csv('Output/data_processing/WQ_data_trimmed_long_withAU20240819.csv')
+input_sufficiency <- read_csv('Output/data_processing/WQ_metadata_trimmed_with_data_sufficiency_20240819.csv')
+wqs_crosswalk <- read_csv('Data/data_analysis/AK_WQS_Crosswalk_20240514.csv')
 
 
 #Create reference site table for analysis
@@ -39,20 +39,20 @@ input_samples_filtered <- filterCat3samples(data_samples = input_samples, data_s
 #Function to output list of AUs with sufficient turbidity and their monitoring locations
 
 findTurbidityReferenceSites <- function(input_samples_filtered) {
- 
+  
   #Find all AUs with sufficient turbidity
-   AUsufficient <- input_samples_filtered %>%
-     dplyr::filter(TADA.CharacteristicName == 'TURBIDITY') %>%
-     dplyr::select(AUID_ATTNS, MonitoringLocationIdentifier) %>%
-     unique() %>%
-     dplyr::arrange(AUID_ATTNS) %>%
-     dplyr::group_by(AUID_ATTNS) %>%
-     dplyr::reframe(AUID_ATTNS = AUID_ATTNS,
-             MonitoringLocationIdentifier = list(unique(MonitoringLocationIdentifier)),
-             n_MonitoringLocations = n()) %>%
-     unique()
-   
-   return(AUsufficient)
+  AUsufficient <- input_samples_filtered %>%
+    dplyr::filter(TADA.CharacteristicName == 'TURBIDITY') %>%
+    dplyr::select(AUID_ATTNS, MonitoringLocationIdentifier) %>%
+    unique() %>%
+    dplyr::arrange(AUID_ATTNS) %>%
+    dplyr::group_by(AUID_ATTNS) %>%
+    dplyr::reframe(AUID_ATTNS = AUID_ATTNS,
+                   MonitoringLocationIdentifier = list(unique(MonitoringLocationIdentifier)),
+                   n_MonitoringLocations = n()) %>%
+    unique()
+  
+  return(AUsufficient)
 }
 
 list_of_needed_sites <- findTurbidityReferenceSites(input_samples_filtered)
@@ -143,7 +143,7 @@ MagDurFreq_turbidity <- function(wqs_crosswalk, input_samples_filtered, input_su
       dplyr::filter(TADA.Constituent %in% my_constituents) %>% 
       dplyr::filter(`Waterbody Type` %in% my_WtrBdy_Type) %>%
       dplyr::filter(Constituent == 'Turbidity') 
-
+    
     
     #If no relevant samples, skip AU
     if(nrow(my_data_magfreqdur)==0){
@@ -181,11 +181,11 @@ MagDurFreq_turbidity <- function(wqs_crosswalk, input_samples_filtered, input_su
         filter_by$Exceed <- ifelse(bad_sum > 0, 'Yes', 'No')
         
       } else if((stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
-                                    'For lake waters, may not exceed 5 NTU above natural conditions') == T |
-                stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
-                                    'For lakes, turbidity may not exceed 5 NTU above natural turbidity.') == T |
-                stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
-                                    '5 NTU above natural conditions, for all lake waters') == T) &
+                                     'For lake waters, may not exceed 5 NTU above natural conditions') == T |
+                 stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
+                                     'For lakes, turbidity may not exceed 5 NTU above natural turbidity.') == T |
+                 stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
+                                     '5 NTU above natural conditions, for all lake waters') == T) &
                 my_AU_Type == "Lake"){
         #Method #2 ----
         results <- filt %>%
@@ -207,13 +207,13 @@ MagDurFreq_turbidity <- function(wqs_crosswalk, input_samples_filtered, input_su
                                      '5 NTU above natural conditions, for all lake waters') == T) &
                 my_AU_Type != "Lake"){
         #Method #3 ----
-
+        
         filter_by$AUID_ATTNS <- i
         filter_by$Exceed <- 'AU not lake waters'
         
       } else if(stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
-                                     '5 NTU above natural conditions, when natural turbidity is 50 NTU or less.') == T &
-                 au_reference_conditions <= 50){
+                                    '5 NTU above natural conditions, when natural turbidity is 50 NTU or less.') == T &
+                au_reference_conditions <= 50){
         #Method #4 ----
         results <- filt %>%
           dplyr::group_by(ActivityStartDate) %>%
@@ -230,7 +230,7 @@ MagDurFreq_turbidity <- function(wqs_crosswalk, input_samples_filtered, input_su
                                     '5 NTU above natural conditions, when natural turbidity is 50 NTU or less.') == T &
                 au_reference_conditions > 50){
         #Method #5 ----
-
+        
         filter_by$AUID_ATTNS <- i
         filter_by$Exceed <- 'Natural conditions greater than 50 NTU'
         
@@ -253,16 +253,16 @@ MagDurFreq_turbidity <- function(wqs_crosswalk, input_samples_filtered, input_su
         filter_by$Exceed <- ifelse(bad_sum > 0, 'Yes', 'No')
         
       } else if(stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
-                                      'No more than 10% increase when natural condition is more than 50 NTU, not to exceed max increase of 15 NTU') == T &
-                  au_reference_conditions <= 50){
+                                    'No more than 10% increase when natural condition is more than 50 NTU, not to exceed max increase of 15 NTU') == T &
+                au_reference_conditions <= 50){
         #Method #7 ----
-
+        
         filter_by$AUID_ATTNS <- i
         filter_by$Exceed <- "Natural conditions less than or equal to 50 NTU"
         
       } else if(stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
-                                      'When natural condition is more than 50 NTU, not to exceed max increase of 15 NTU') == T &
-                  au_reference_conditions > 50){
+                                    'When natural condition is more than 50 NTU, not to exceed max increase of 15 NTU') == T &
+                au_reference_conditions > 50){
         #Method #8 ----
         
         results <- filt %>%
@@ -285,8 +285,8 @@ MagDurFreq_turbidity <- function(wqs_crosswalk, input_samples_filtered, input_su
         filter_by$Exceed <- "Natural conditions less than or equal to 50 NTU"
         
       } else if(stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
-                                       'May not exceed 10 NTU above natural conditions when natural turbidity is 50 NTU or less') == T &
-                   au_reference_conditions <= 50){
+                                    'May not exceed 10 NTU above natural conditions when natural turbidity is 50 NTU or less') == T &
+                au_reference_conditions <= 50){
         #Method #10 ----
         
         results <- filt %>%
@@ -309,8 +309,8 @@ MagDurFreq_turbidity <- function(wqs_crosswalk, input_samples_filtered, input_su
         filter_by$Exceed <- "Natural conditions greater than 50 NTU"
         
       } else if(stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
-                                      'May not exceed 20% increase in turbidity when natural turbidity is greater than 50 NTU, not to exceed a maximum increase of 15 NTU') == T &
-                  au_reference_conditions > 50){
+                                    'May not exceed 20% increase in turbidity when natural turbidity is greater than 50 NTU, not to exceed a maximum increase of 15 NTU') == T &
+                au_reference_conditions > 50){
         #Method #12 ----
         max_over <- ifelse(au_reference_conditions*0.2 >= 15, 15, au_reference_conditions*0.1)
         
@@ -333,8 +333,8 @@ MagDurFreq_turbidity <- function(wqs_crosswalk, input_samples_filtered, input_su
         filter_by$Exceed <- "Natural conditions less than or equal to 50 NTU"
         
       } else if(stringr::str_detect(tidyr::replace_na(filter_by$Details, ''),
-                                     'No more than 10% increase when natural condition is more than 50 NTU, not to exceed a maximum increase of 25 NTU.') == T &
-                 au_reference_conditions > 50){
+                                    'No more than 10% increase when natural condition is more than 50 NTU, not to exceed a maximum increase of 25 NTU.') == T &
+                au_reference_conditions > 50){
         #Method #14 ----
         max_over <- ifelse(au_reference_conditions*0.1 >= 25, 25, au_reference_conditions*0.1)
         
@@ -391,8 +391,8 @@ MagDurFreq_turbidity <- function(wqs_crosswalk, input_samples_filtered, input_su
   
   data_suff_WQS <- df_AU_data_WQS %>%
     dplyr::rename(TADA.CharacteristicName = TADA.Constituent) %>%
-    dplyr::full_join(relevant_suff, by = c('AUID_ATTNS', 'TADA.CharacteristicName', 'Use', 'Waterbody Type',
-                                          'Fraction', 'Type'),
+    dplyr::full_join(relevant_suff, by = c('AUID_ATTNS', 'TADA.CharacteristicName', 'Use', 'Use Description','Waterbody Type',
+                                           'Fraction', 'Type'),
                      relationship = "many-to-many") %>%
     dplyr::relocate(Exceed, .after = last_col()) %>%
     dplyr::select(!Magnitude_Text)

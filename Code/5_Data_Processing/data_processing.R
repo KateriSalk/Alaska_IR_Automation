@@ -9,7 +9,7 @@
 #2. 'WQ_Column_Manager.csv' to quickly subset WQ dataset fields
 #3. 'ML_AU_Crosswalk.csv' to crosswalk Monitoring Locations with AUs
 #4. 'AK_DataSufficiency_Crosswalk_20240117.csv' to crosswalk WQ dataset with 
-     # data sufficiency table
+# data sufficiency table
 #5. 'beaches.shp' Beaches AU shapefile
 #6. 'lakes.shp' Lakes AU shapefile
 #7. 'marine.shp' Marine AU shapefile
@@ -31,7 +31,7 @@ myDate <- format(Sys.Date(), "%Y%m%d")
 #Find all file names that end in .csv from the data_pull output folder
 csv_names1 <- list.files('Data/data_pull', pattern = '.csv', full.names = T)
 csv_names <- csv_names1[!str_detect(csv_names1, pattern = 'all')]
-  
+
 #Read in csvs and combine into one table
 all_input_data <- tibble()
 for(i in 1:length(csv_names)) {
@@ -91,11 +91,11 @@ data_5b <- TADA_FlagBelowThreshold(data_5a, clean = F)
 
 #####6. Find continuous data#####
 # This function adds the TADA.ContinuousData.Flag to the dataframe.
-data_6 <- TADA_FlagContinuousData(data_5b, clean = F, flaggedonly = FALSE)
+# data_6 <- TADA_FlagContinuousData(data_5b, clean = F, flaggedonly = FALSE)
 
 #####7. Check method flags#####
 # This function adds the TADA.AnalyticalMethod.Flag to the dataframe.
-data_7 <- TADA_FlagMethod(data_6, clean = F)
+data_7 <- TADA_FlagMethod(data_5b, clean = F)
 
 #####8. Find potential duplicates#####
 #Buffer distance set to 50 m, can change
@@ -122,69 +122,69 @@ data_10 <- TADA_FlagCoordinates(data_9, clean_outsideUSA = 'no')
 #####11. Find any 'SUSPECT' samples#####
 # This function adds the TADA.MeasureQualifierCode.Flag to the dataframe.
 data_11a <- TADA_FlagMeasureQualifierCode(data_10, clean = F)
-  
+
 # list uncategorized qualifiers in data
 (uncategorized_qualifiers <- data_11a %>% 
-  select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag) %>% 
-  filter(TADA.MeasureQualifierCode.Flag == "uncategorized") %>% 
-  distinct())
+    select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag) %>% 
+    filter(TADA.MeasureQualifierCode.Flag == "uncategorized") %>% 
+    distinct())
 
 # update qualifiers using 'IR DATA QA .xlsx'
 # add any changes by making a new row below
 data_11b <- data_11a %>% 
   mutate(TADA.MeasureQualifierCode.Flag = 
            case_when(
-                    # The following were uncategorized by TADA
-                     (MeasureQualifierCode == "H;U") ~ "Suspect"
-                   , (MeasureQualifierCode == "RC;U") ~ "Non-Detect"
-                   , (MeasureQualifierCode == "H;RC;U") ~ "Suspect"
-                   , (MeasureQualifierCode == "J-R;TOC") ~ "Pass"
-                   , (MeasureQualifierCode == "TOC;U") ~ "Non-Detect"
-                   , (MeasureQualifierCode == "RC;SUS") ~ "Suspect"
-                   , (MeasureQualifierCode == "O;RC") ~ "Pass"
-                   , (MeasureQualifierCode == "H;RC") ~ "Suspect"
-                   , (MeasureQualifierCode == "B;J-R") ~ "Pass"
-                   , (MeasureQualifierCode == "H;J-R") ~ "Suspect"
-                   , (MeasureQualifierCode == "IQCOL;U") ~ "Pass"
-                   , (MeasureQualifierCode == "IQCOL;J-R") ~ "Pass"
-                   , (MeasureQualifierCode == "LL;RC") ~ "Pass"
-                   , (MeasureQualifierCode == "BQL;RC") ~ "Pass"
-                   , (MeasureQualifierCode == "B;D") ~ "Pass"
-                   , (MeasureQualifierCode == "SDROL;U") ~ "Suspect"
-                   # The following are AK DEC specific updates to TADA flags
-                   , (MeasureQualifierCode == "*") ~ "Suspect"
-                   , (MeasureQualifierCode == "A") ~ "Reject"
-                   , (MeasureQualifierCode == "B") ~ "Suspect"
-                   , (MeasureQualifierCode == "CAN") ~ "Reject"
-                   , (MeasureQualifierCode == "CBC") ~ "Reject"
-                   , (MeasureQualifierCode == "CNT") ~ "Suspect"
-                   , (MeasureQualifierCode == "EER") ~ "Reject"
-                   , (MeasureQualifierCode == "J-1") ~ "Suspect"
-                   , (MeasureQualifierCode == "LAC") ~ "Reject"
-                   , (MeasureQualifierCode == "LBF") ~ "Reject"
-                   , (MeasureQualifierCode == "NA") ~ "Pass"
-                   , (MeasureQualifierCode == "NAI") ~ "Reject"
-                   , (MeasureQualifierCode == "NLBL") ~ "Reject"
-                   , (MeasureQualifierCode == "NLRO") ~ "Reject"
-                   , (MeasureQualifierCode == "NRP") ~ "Reject"
-                   , (MeasureQualifierCode == "NRR") ~ "Reject"
-                   , (MeasureQualifierCode == "NRS") ~ "Reject"
-                   , (MeasureQualifierCode == "NSQ") ~ "Reject"
-                   , (MeasureQualifierCode == "OUT") ~ "Suspect"
-                   , (MeasureQualifierCode == "PNQ") ~ "Reject"
-                   , (MeasureQualifierCode == "PPD") ~ "Suspect"
-                   , (MeasureQualifierCode == "PRE") ~ "Suspect"
-                   , (MeasureQualifierCode == "R") ~ "Reject"
-                   , (MeasureQualifierCode == "SUS") ~ "Reject"
-                   , (MeasureQualifierCode == "UDQ") ~ "Suspect"
-                   , (MeasureQualifierCode == "UNC") ~ "Suspect"
-                   , TRUE ~ TADA.MeasureQualifierCode.Flag))
+             # The following were uncategorized by TADA
+             (MeasureQualifierCode == "H;U") ~ "Suspect"
+             , (MeasureQualifierCode == "RC;U") ~ "Non-Detect"
+             , (MeasureQualifierCode == "H;RC;U") ~ "Suspect"
+             , (MeasureQualifierCode == "J-R;TOC") ~ "Pass"
+             , (MeasureQualifierCode == "TOC;U") ~ "Non-Detect"
+             , (MeasureQualifierCode == "RC;SUS") ~ "Suspect"
+             , (MeasureQualifierCode == "O;RC") ~ "Pass"
+             , (MeasureQualifierCode == "H;RC") ~ "Suspect"
+             , (MeasureQualifierCode == "B;J-R") ~ "Pass"
+             , (MeasureQualifierCode == "H;J-R") ~ "Suspect"
+             , (MeasureQualifierCode == "IQCOL;U") ~ "Pass"
+             , (MeasureQualifierCode == "IQCOL;J-R") ~ "Pass"
+             , (MeasureQualifierCode == "LL;RC") ~ "Pass"
+             , (MeasureQualifierCode == "BQL;RC") ~ "Pass"
+             , (MeasureQualifierCode == "B;D") ~ "Pass"
+             , (MeasureQualifierCode == "SDROL;U") ~ "Suspect"
+             # The following are AK DEC specific updates to TADA flags
+             , (MeasureQualifierCode == "*") ~ "Suspect"
+             , (MeasureQualifierCode == "A") ~ "Reject"
+             , (MeasureQualifierCode == "B") ~ "Suspect"
+             , (MeasureQualifierCode == "CAN") ~ "Reject"
+             , (MeasureQualifierCode == "CBC") ~ "Reject"
+             , (MeasureQualifierCode == "CNT") ~ "Suspect"
+             , (MeasureQualifierCode == "EER") ~ "Reject"
+             , (MeasureQualifierCode == "J-1") ~ "Suspect"
+             , (MeasureQualifierCode == "LAC") ~ "Reject"
+             , (MeasureQualifierCode == "LBF") ~ "Reject"
+             , (MeasureQualifierCode == "NA") ~ "Pass"
+             , (MeasureQualifierCode == "NAI") ~ "Reject"
+             , (MeasureQualifierCode == "NLBL") ~ "Reject"
+             , (MeasureQualifierCode == "NLRO") ~ "Reject"
+             , (MeasureQualifierCode == "NRP") ~ "Reject"
+             , (MeasureQualifierCode == "NRR") ~ "Reject"
+             , (MeasureQualifierCode == "NRS") ~ "Reject"
+             , (MeasureQualifierCode == "NSQ") ~ "Reject"
+             , (MeasureQualifierCode == "OUT") ~ "Suspect"
+             , (MeasureQualifierCode == "PNQ") ~ "Reject"
+             , (MeasureQualifierCode == "PPD") ~ "Suspect"
+             , (MeasureQualifierCode == "PRE") ~ "Suspect"
+             , (MeasureQualifierCode == "R") ~ "Reject"
+             , (MeasureQualifierCode == "SUS") ~ "Reject"
+             , (MeasureQualifierCode == "UDQ") ~ "Suspect"
+             , (MeasureQualifierCode == "UNC") ~ "Suspect"
+             , TRUE ~ TADA.MeasureQualifierCode.Flag))
 
 # re-check for uncategorized qualifiers
 (uncategorized_qualifiers <- data_11b %>% 
-  select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag) %>% 
-  filter(TADA.MeasureQualifierCode.Flag == "uncategorized") %>% 
-  distinct())
+    select(MeasureQualifierCode, TADA.MeasureQualifierCode.Flag) %>% 
+    filter(TADA.MeasureQualifierCode.Flag == "uncategorized") %>% 
+    distinct())
 
 #####12. Replace non-detects #####
 # This function adds the following columns to the dataframe:
@@ -204,7 +204,7 @@ data_12 <- TADA_SimpleCensoredMethods(data_11b,
 
 # Eliminate any columns with all NA values
 data_13 <- data_12 %>% 
-  select(where(~sum(!is.na(.x)) > 0))
+  select(where(~sum(!is.na(.x)) > 0)) 
 
 #Export data with flags
 write_csv(data_13, file = file.path('Output/data_processing'
@@ -243,7 +243,7 @@ for(i in names(data_13)){
   names(results) <- c("ColumnName", "Class", "NumberUniqueValues"
                       , "UniqueValues")
   result_list[[counter]] <- results
-    
+  
 }# End of for loop
 df_loop_results <- do.call("rbind", result_list) # combine results from for loop
 data_summary <- as.data.frame(df_loop_results) # convert to data frame
@@ -253,7 +253,7 @@ data_summary <- data_summary[order(data_summary$NumberUniqueValues),] # order
 
 #Export data summary
 write_csv(data_summary, file = file.path('Output/data_processing'
-                                    , paste0("WQ_column_summary_",myDate, ".csv")))
+                                         , paste0("WQ_column_summary_",myDate, ".csv")))
 
 #Clean up environment
 rm(data_summary, df_loop_results, result_list, Class, ColumnName, counter
@@ -279,7 +279,7 @@ Cols_Manager <- df_ColManager$Col_Name
 
 if(length(QC_Check) > 0){
   print(paste("df_ColManager is out of date and needs updating."
-               ,"The following fields are missing:"))
+              ,"The following fields are missing:"))
   print(QC_Check)
 } else {
   print("df_ColManager is up to date.")
@@ -324,7 +324,7 @@ data_16 <- data_15 %>%
 # censored data are retained in this dataset.
 
 #Units check - compare sample units to WQS units
-wqs_table_units <- read_csv('Data/data_analysis/AK_WQS_Crosswalk_20240507.csv') %>%
+wqs_table_units <- read_csv('Data/data_analysis/AK_WQS_Crosswalk_20240514.csv') %>% #dec change
   select(TADA.Constituent, Units) %>%
   unique() %>%
   na.omit() %>%
@@ -398,7 +398,11 @@ data_16c <- data_16b %>%
                                                         TADA.ResultMeasure.MeasureUnitCode == 'MG/L AS N' &
                                                           Units == 'UG/L'~
                                                           'UG/L',
-                                                        T ~ TADA.ResultMeasure.MeasureUnitCode)) 
+                                                        is.na(TADA.ResultMeasure.MeasureUnitCode) & # dec added 7-30-24
+                                                          Units == 'SU'~#dec added 7-30-24
+                                                          'SU',#dec added 7-30-24
+                                                        T ~ TADA.ResultMeasure.MeasureUnitCode)) #dec added 7-30-24
+
 
 #Find which units were not fixable by simple conversion
 #Requires manual intervention
@@ -411,12 +415,12 @@ print('Check samples_table_units_not_matching variable for any sample units that
 
 #Grab only data whose units match
 data_16d <- data_16c %>%
-  filter(TADA.ResultMeasure.MeasureUnitCode == Units| is.na(Units))
+  filter(TADA.ResultMeasure.MeasureUnitCode == Units | is.na(Units)) #DEC change
 
 #Export data summary
 write_csv(data_16d, file = file.path('Output/data_processing'
-                                         , paste0("WQ_data_trimmed_"
-                                                  ,myDate, ".csv"))
+                                     , paste0("WQ_data_trimmed_"
+                                              ,myDate, ".csv"))
           , na = "")
 
 #Clean up environment
@@ -427,7 +431,7 @@ rm(data_15, data_16, data_16b, data_16c)
 
 # For loop to plot distribution of TADA.CharacteristicName
 # CAUTION: This loop takes about a minute to run.
-Unique_CharName <- unique(data_16$TADA.CharacteristicName)
+Unique_CharName <- unique(data_16d$TADA.CharacteristicName)
 plot_list <- list()
 counter <- 0
 myPal <- c("Lake, Reservoir, Impoundment" = "#7fc97f"
@@ -438,7 +442,7 @@ myPal <- c("Lake, Reservoir, Impoundment" = "#7fc97f"
            , "Stream" = "#f0027f"
            , "River/Stream" = "#bf5b17")
 
-data_4loop <- data_16 %>% 
+data_4loop <- data_16d %>% #DEC change to 16d from 16. 16 removed from environment above#
   filter(!is.na(TADA.ResultMeasureValue))%>% # remove NA values
   select(MonitoringLocationTypeName, TADA.CharacteristicName
          , TADA.ResultMeasureValue, TADA.ResultMeasure.MeasureUnitCode) %>% 
@@ -470,8 +474,8 @@ for(i in Unique_CharName){
   
   #log boxplot
   logplot <- ggplot(data = df_subset, aes(x = MonitoringLocationTypeName
-                                       , y = TADA.ResultMeasureValue_Log10
-                                       , fill = MonitoringLocationTypeName))+
+                                          , y = TADA.ResultMeasureValue_Log10
+                                          , fill = MonitoringLocationTypeName))+
     geom_boxplot()+
     labs(y = paste0(df_subset$TADA.ResultMeasure.MeasureUnitCode, " (Log10 Y-Axis)")
          , title = df_subset$TADA.CharacteristicName)+
@@ -514,7 +518,7 @@ data_18 <- data_16d %>%
 #### Match data to AUs ####
 #####19. ML to AUs #####
 # Match using Data/data_processing/ML_AU_Crosswalk.CSV
-df_ML_AU_Crosswalk <- read_csv("Data/data_processing/ML_AU_Crosswalk.CSV")
+df_ML_AU_Crosswalk <- read_csv("Data/data_processing/ML_AU_Crosswalk20240809.CSV")
 df_ML_AU_Crosswalk <- df_ML_AU_Crosswalk %>% 
   select(-c(OrganizationIdentifier)) %>% # removed to avoid duplication in join
   dplyr::rename(AU_Type = Type)
@@ -562,7 +566,8 @@ data_19_long <- left_join(data_16d, df_ML_AU_Crosswalk
                                               | TADA.CharacteristicName == "HARDNESS, CARBONATE"
                                               | TADA.CharacteristicName ==  "HARDNESS"
                                               | TADA.CharacteristicName ==  "TOTAL HARDNESS") ~ "HARDNESS"
-                                             , TRUE ~ TADA.CharacteristicName))
+                                             , TRUE ~ TADA.CharacteristicName)) %>% #added by DEC
+  filter(!is.na(TADA.ResultMeasureValue))
 
 
 #Export data summary
@@ -607,7 +612,7 @@ map <- leaflet() %>%
                                    ,"OrganizationIdentifier:", df_ML$OrganizationIdentifier, "<br>"
                                    ,"MonitoringLocationTypeName:", df_ML$MonitoringLocationTypeName)
                    , color = "black", fillColor = ~pal(MonitoringLocationTypeName), fillOpacity = 1, stroke = TRUE
-                   )%>%
+  )%>%
   addLegend("bottomright", pal = pal, values = df_ML$MonitoringLocationTypeName,
             title = "ML Type", opacity = 1)
 
@@ -622,7 +627,7 @@ map # view map
 ML_in_crosswalk <- unique(df_ML_AU_Crosswalk$MonitoringLocationIdentifier)
 
 (missing_ML <- df_ML %>%  # these are MLs not in the crosswalk table
-  filter(!MonitoringLocationIdentifier %in% ML_in_crosswalk))
+    filter(!MonitoringLocationIdentifier %in% ML_in_crosswalk))
 
 ######20a. Setup #####
 fn_shp <- file.path(getwd(), "Data", "data_GIS")
@@ -674,7 +679,7 @@ ggplot() +
 ### spatial join
 beach_SpatJoin <- sf::st_join(beach_pts, beach_shp, join = st_nearest_feature) %>% # join points and AUs
   select(MonitoringLocationIdentifier, MonitoringLocationName
-         , MonitoringLocationTypeName, AUID_ATTNS, Name_AU, HUC10) # trim unneccessary columns
+         , MonitoringLocationTypeName, AUID_ATTNS, Name_AU, HUC10 =HUC10_ID) # trim unneccessary columns
 
 ### determine distance (m) between points and nearest feature
 near_feat <- sf::st_nearest_feature(beach_pts, beach_shp)
@@ -690,12 +695,12 @@ miss_ML_beach_results <- beach_SpatJoin2 %>%
          Latitude = unlist(map(geometry,2))) %>% 
   sf::st_drop_geometry() %>% 
   mutate(NameSimilarityScore = round(stringdist::stringsim(MonitoringLocationName # name similarity
-                                                 , Name_AU
-                                                 , method='jw'),2))
+                                                           , Name_AU
+                                                           , method='jw'),2))
 
 write_csv(miss_ML_beach_results, file = file.path('Output/data_processing'
-                                    , paste0("Missing_MonLoc_Beaches_SpatJoin_"
-                                             ,myDate, ".csv"))
+                                                  , paste0("Missing_MonLoc_Beaches_SpatJoin_"
+                                                           ,myDate, ".csv"))
           , na = "")
 
 ### Clean up environment
@@ -720,8 +725,8 @@ if(num_sites == 0){
 
 ### convert to geospatial layer (sf object)
 lake_pts <- sf::st_as_sf(x = miss_ML_lakes, coords = c("TADA.LongitudeMeasure"
-                                                          ,"TADA.LatitudeMeasure")
-                          , crs = "+proj=longlat +datum=WGS84")%>% 
+                                                       ,"TADA.LatitudeMeasure")
+                         , crs = "+proj=longlat +datum=WGS84")%>% 
   sf::st_transform(st_crs(lake_shp))
 
 ### plot to see how they relate
@@ -754,8 +759,8 @@ miss_ML_lake_results <- lake_SpatJoin2 %>%
                                                            , method='jw'),2))
 
 write_csv(miss_ML_lake_results, file = file.path('Output/data_processing'
-                                                  , paste0("Missing_MonLoc_Lakes_SpatJoin_"
-                                                           ,myDate, ".csv"))
+                                                 , paste0("Missing_MonLoc_Lakes_SpatJoin_"
+                                                          ,myDate, ".csv"))
           , na = "")
 
 ### Clean up environment
@@ -780,8 +785,8 @@ if(num_sites == 0){
 
 ### convert to geospatial layer (sf object)
 marine_pts <- sf::st_as_sf(x = miss_ML_marine, coords = c("TADA.LongitudeMeasure"
-                                                       ,"TADA.LatitudeMeasure")
-                         , crs = "+proj=longlat +datum=WGS84")%>% 
+                                                          ,"TADA.LatitudeMeasure")
+                           , crs = "+proj=longlat +datum=WGS84")%>% 
   sf::st_transform(st_crs(marine_shp))
 
 ### plot to see how they relate
@@ -809,13 +814,13 @@ miss_ML_marine_results <- marine_SpatJoin2 %>%
   mutate(Longitude = unlist(map(geometry,1)),
          Latitude = unlist(map(geometry,2))) %>% 
   sf::st_drop_geometry() 
-  # mutate(NameSimilarityScore = round(stringdist::stringsim(MonitoringLocationName # name similarity
-  #                                                          , Name_AU
-  #                                                          , method='jw'),2))
+# mutate(NameSimilarityScore = round(stringdist::stringsim(MonitoringLocationName # name similarity
+#                                                          , Name_AU
+#                                                          , method='jw'),2))
 
 write_csv(miss_ML_marine_results, file = file.path('Output/data_processing'
-                                                 , paste0("Missing_MonLoc_Marine_SpatJoin_"
-                                                          ,myDate, ".csv"))
+                                                   , paste0("Missing_MonLoc_Marine_SpatJoin_"
+                                                            ,myDate, ".csv"))
           , na = "")
 
 ### Clean up environment
@@ -840,8 +845,8 @@ if(num_sites == 0){
 
 ### convert to geospatial layer (sf object)
 river_pts <- sf::st_as_sf(x = miss_ML_rivers, coords = c("TADA.LongitudeMeasure"
-                                                          ,"TADA.LatitudeMeasure")
-                           , crs = "+proj=longlat +datum=WGS84")%>% 
+                                                         ,"TADA.LatitudeMeasure")
+                          , crs = "+proj=longlat +datum=WGS84")%>% 
   sf::st_transform(st_crs(river_shp))
 
 ### plot to see how they relate
@@ -887,7 +892,7 @@ rm(num_sites, river_pts, river_SpatJoin, river_SpatJoin2, miss_ML_rivers_results
 # reconfigure shapefiles
 beach_shp2 <- beach_shp %>%
   sf::st_transform('+proj=longlat +datum=WGS84')
-  
+
 lake_shp2 <- lake_shp %>%
   sf::st_transform('+proj=longlat +datum=WGS84')
 
@@ -899,12 +904,12 @@ river_shp2 <- river_shp %>%
 
 # setup palette
 ML_Type <- factor(levels = c("Lake, Reservoir, Impoundment"
-                    , "Lake"
-                    , "BEACH Program Site-Ocean"
-                    , "Estuary"
-                    , "Ocean"
-                    , "Stream"
-                    , "River/Stream"))
+                             , "Lake"
+                             , "BEACH Program Site-Ocean"
+                             , "Estuary"
+                             , "Ocean"
+                             , "Stream"
+                             , "River/Stream"))
 
 pal <- colorFactor(
   palette = c("#a6cee3", "#a6cee3", "#1f78b4", "#b2df8a", "#b2df8a"
@@ -924,12 +929,12 @@ missing_ML_map <- leaflet() %>%
                                    ,"OrganizationIdentifier:", missing_ML$OrganizationIdentifier, "<br>"
                                    ,"MonitoringLocationTypeName:", missing_ML$MonitoringLocationTypeName)
                    , color = "black", fillColor = ~pal(MonitoringLocationTypeName), fillOpacity = 1, stroke = TRUE
-                   ) %>%
+  ) %>%
   addPolygons(data = beach_shp2, color = "black", weight = 1, opacity = 1
               , popup = paste("AUID_ATTNS:", beach_shp2$AUID_ATTNS, "<br>"
                               , "Name_AU:", beach_shp2$Name_AU)
               , fillColor = "#1f78b4", fillOpacity = 0.5, group = "Beaches"
-              ) %>%
+  ) %>%
   addPolygons(data = lake_shp2, color = "black", weight = 1, opacity = 1
               , popup = paste("AUID_ATTNS:", lake_shp2$AUID_ATTNS, "<br>"
                               , "Name_AU:", lake_shp2$Name_AU)
@@ -960,7 +965,9 @@ rm(data_18, df_ML, df_ML_AU_Crosswalk, map, missing_ML, missing_ML_map
 #### Organize data by AUs####
 ##### 21. AU data summary #####
 data_21 <- data_19 %>% 
-  filter(!is.na(AUID_ATTNS))
+  filter(!is.na(AUID_ATTNS)) %>% #added by DEC
+  filter(!is.na(TADA.ResultMeasureValue))
+
 
 # Number of monitoring locations per AU
 df_AU_summary1 <- data_21 %>% 
@@ -998,10 +1005,9 @@ rm(df_AU_summary1, df_AU_summary2, df_AU_summary3, data_19)
 #### Data sufficiency ####
 ##### 22. AU/pollutant data sufficiency #####
 # Match using Data/data_processing/ML_AU_Crosswalk.CSV
-df_data_sufficiency <- read_csv("Data/data_processing/AK_DataSufficiency_Crosswalk_20240117.csv")
+df_data_sufficiency <- read_csv("Data/data_processing/AK_DataSufficiency_Crosswalk_20240514.csv") #DEC edit: updated input (ATTAINS uses and drinking water chloride fraction dissolved)
 df_data_sufficiency2 <- df_data_sufficiency %>% 
-  select(-c(`Constituent Group`, Constituent
-            , `Other Requirements`, `Listing methodology`, Notes)) %>% 
+  select(-c(`Constituent Group`, Constituent, `Other Requirements`, `Listing methodology`, Notes)) %>% #dec edit: removed Use_Description from select(-c())
   mutate(TADA.Fraction = toupper(Fraction)) %>% 
   select(`Waterbody Type`, TADA.Constituent, Fraction, TADA.Fraction, everything())
 
@@ -1047,24 +1053,24 @@ TAH <- c("BENZENE", "P-BROMOFLUOROBENZENE", "ETHYLBENZENE", "M,P-XYLENE"
 
 data_22a <- data_21 %>% 
   mutate(TADA.ResultSampleFractionText_new = case_when((TADA.ResultSampleFractionText == "UNFILTERED"
-                                                           |TADA.ResultSampleFractionText == "UNFILTERED, FIELD"
-                                                           |TADA.ResultSampleFractionText == "TOTAL") 
-                                                          ~ "TOTAL"
-                                                        , (TADA.ResultSampleFractionText == "FILTERED"
-                                                           | TADA.ResultSampleFractionText == "FILTERED, LAB"
-                                                           | TADA.ResultSampleFractionText == "FILTERED, FIELD"
-                                                           | TADA.ResultSampleFractionText == "VOLATILE"
-                                                           | TADA.ResultSampleFractionText == "DISSOLVED") 
-                                                          ~ "DISSOLVED"
-                                                        , (TADA.ResultSampleFractionText == "SUSPENDED"
-                                                           | TADA.ResultSampleFractionText == "NON-FILTERABLE (PARTICLE)"
-                                                           | TADA.ResultSampleFractionText == "NON-FILTERABLE"
-                                                           | TADA.ResultSampleFractionText == "SETTLEABLE") 
-                                                          ~ "PARTICULATE"
-                                                        , (TADA.ResultSampleFractionText == "RECOVERABLE") 
-                                                          ~ "TOTAL RECOVERABLE"
-                                                        , (TADA.ResultSampleFractionText == "FIELD") ~ NA
-                                                        , TRUE ~ NA)) %>% 
+                                                        |TADA.ResultSampleFractionText == "UNFILTERED, FIELD"
+                                                        |TADA.ResultSampleFractionText == "TOTAL") 
+                                                       ~ "TOTAL"
+                                                       , (TADA.ResultSampleFractionText == "FILTERED"
+                                                          | TADA.ResultSampleFractionText == "FILTERED, LAB"
+                                                          | TADA.ResultSampleFractionText == "FILTERED, FIELD"
+                                                          | TADA.ResultSampleFractionText == "VOLATILE"
+                                                          | TADA.ResultSampleFractionText == "DISSOLVED") 
+                                                       ~ "DISSOLVED"
+                                                       , (TADA.ResultSampleFractionText == "SUSPENDED"
+                                                          | TADA.ResultSampleFractionText == "NON-FILTERABLE (PARTICLE)"
+                                                          | TADA.ResultSampleFractionText == "NON-FILTERABLE"
+                                                          | TADA.ResultSampleFractionText == "SETTLEABLE") 
+                                                       ~ "PARTICULATE"
+                                                       , (TADA.ResultSampleFractionText == "RECOVERABLE") 
+                                                       ~ "TOTAL RECOVERABLE"
+                                                       , (TADA.ResultSampleFractionText == "FIELD") ~ NA
+                                                       , TRUE ~ NA)) %>% 
   mutate(TADA.ResultSampleFractionText_new = case_when((TADA.CharacteristicName %in% blank_fractions) ~ NA
                                                        , TRUE ~ TADA.ResultSampleFractionText_new)) %>% 
   mutate(TADA.CharacteristicName = case_when((TADA.CharacteristicName == "HARDNESS, CA, MG"
@@ -1194,9 +1200,9 @@ for(i in Unique_AUIDs){
   
   # join trimmed data sufficiency table to AU data
   df_join <- left_join(df_subset, my_data_sufficiency
-                     , by = c("TADA.CharacteristicName" = "TADA.Constituent"
-                              , "TADA.ResultSampleFractionText_new" = "TADA.Fraction")
-                     , relationship = "many-to-many")
+                       , by = c("TADA.CharacteristicName" = "TADA.Constituent"
+                                , "TADA.ResultSampleFractionText_new" = "TADA.Fraction")
+                       , relationship = "many-to-many")
   
   
   # determine data sufficiency based on # years and # samples of data for AU
@@ -1209,7 +1215,7 @@ for(i in Unique_AUIDs){
            , Data_Sufficient = case_when((Min_Period_Pass == "Yes"
                                           & Min_Data_Pass == "Yes")~"Yes"
                                          ,(is.na(Min_Period_Pass)
-                                          & is.na(Min_Data_Pass)) ~ NA
+                                           & is.na(Min_Data_Pass)) ~ NA
                                          , TRUE ~ "No"))
   
   # hardness check
@@ -1226,18 +1232,18 @@ for(i in Unique_AUIDs){
   
   # make hardness flag if appropriate (ALU and specific constituents)
   results2 <- results1 %>% 
-    mutate(Hardness_Dependency = case_when((Use != "Aquatic Life"
+    mutate(Hardness_Dependency = case_when((Use != "GROWTH AND PROPAGATION OF FISH, SHELLFISH, OTHER AQUATIC LIFE AND WILDLIFE" #dec edit
                                             | is.na(Use)
                                             |!(TADA.CharacteristicName %in% hardness_dependents))
-                                                ~ "Hardness dependency not applicable."
+                                           ~ "Hardness dependency not applicable."
                                            , (hardness_check == "Yes"
-                                              & Use == "Aquatic Life"
+                                              & Use == "GROWTH AND PROPAGATION OF FISH, SHELLFISH, OTHER AQUATIC LIFE AND WILDLIFE" #dec edit
                                               & TADA.CharacteristicName %in% hardness_dependents)
-                                                ~ "Hardness data available to assess data sufficiency."
+                                           ~ "Hardness data available to assess data sufficiency."
                                            , (hardness_check == "No"
-                                              & Use == "Aquatic Life"
+                                              & Use == "GROWTH AND PROPAGATION OF FISH, SHELLFISH, OTHER AQUATIC LIFE AND WILDLIFE" #dec edit
                                               & TADA.CharacteristicName %in% hardness_dependents)
-                                                ~ "Hardness data not available to assess data sufficiency."))
+                                           ~ "Hardness data not available to assess data sufficiency."))
   
   # WQ data WITH successful joins from data sufficiency
   results_complete <- results2 %>% 
