@@ -53,7 +53,7 @@ The data download section is broken into five different "pulls". Each pull is fo
 ?TADA_BigDataRetrieval
 ```
 
-The inputs into the *TADA_BigDataRetrieval* are the dates defined in the previous section, the WQP site type, the state code (i.e., AK), and applying auto clean. Note, at the time of devleopment, the *TADA_BigDataRetrieval* function will not return a 'TADA object' without the applyautoclean = T.
+The inputs into the *TADA_BigDataRetrieval* are the dates defined in the previous section, the WQP site type, the state code (i.e., AK), and applying auto clean. Note, at the time of development, the *TADA_BigDataRetrieval* function will not return a 'TADA object' without the applyautoclean = T.
 
 ```{r}
 #| output: false
@@ -79,7 +79,7 @@ The output of the *TADA_BigDataRetrieval* function is a WQP data table with an a
 
 ## Exporting as CSV
 
-The resulting tables from *TADA_BigDataRetrieval*, one for each site type, can either be combined using rbind into one large table for export and/or be exported individually. Exporting to csv is performed using *dplyr::write_csv* (loaded in with *tidyverse*). The user can change the export file location if needed.
+The resulting tables from *TADA_BigDataRetrieval*, one for each site type, can either be combined using *rbind* into one large table for export and/or be exported individually. Exporting to csv is performed using *dplyr::write_csv* (loaded in with *tidyverse*). The user can change the export file location if needed.
 
 ```{r}
 #| output: false
