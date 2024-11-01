@@ -34,7 +34,7 @@ library(sf)
 This code has specific exterior files that are required for it to run. The inputs are listed below. All input files are loaded at the beginning of the script.
 
 | File Name                         | Purpose                                    | Source            |
-|----------------------|---------------------------------|-----------------|
+|-----------------------------------|--------------------------------------------|-------------------|
 | categorized_aus\_\[YYYYMMDD\].csv | Provides necessary AU metadata and results | *categorize_au.R* |
 | lakes.shp                         | Lake AU shapefiles                         | AKDEC             |
 | rivers.shp                        | River AU shapefiles                        | AKDEC             |
