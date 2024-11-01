@@ -17,7 +17,7 @@ The purpose of the *data_processing.R* script is to first conduct quality contro
 
 ## Required Packages
 
-The required packages for the *data_processing.R* code are [*TADA*](https://github.com/USEPA/TADA), [*tidyverse*](https://www.tidyverse.org/)*, [leaflet](https://rstudio.github.io/leaflet/), [scales](https://scales.r-lib.org/),* and [*sf*](https://r-spatial.github.io/sf/)*.* Installation for the *TADA* and *tidyverse* packages can be found in the Data Pull Guide. Below is a code chunk that demonstrates how to install and load these packages. If you work from using a Virtual Private Network (VPN), you may have trouble downloading packages, and if so, simply turn the VPN off before package download.
+The required packages for the *data_processing.R* code are [*EPATADA*](https://github.com/USEPA/EPATADA), [*tidyverse*](https://www.tidyverse.org/)*, [leaflet](https://rstudio.github.io/leaflet/), [scales](https://scales.r-lib.org/),* and [*sf*](https://r-spatial.github.io/sf/)*.* Installation for the *EPATADA* and *tidyverse* packages can be found in the Data Pull Guide. Below is a code chunk that demonstrates how to install and load these packages. If you work from using a Virtual Private Network (VPN), you may have trouble downloading packages, and if so, simply turn the VPN off before package download.
 
 ```{r}
 #| output: false
@@ -31,7 +31,7 @@ library(scales)
 # install.packages('sf')
 library(sf)
 
-library(TADA)
+library(EPATADA)
 library(sf)
 ```
 
@@ -40,13 +40,13 @@ library(sf)
 This code has specific exterior files that are required for it to run. The inputs are listed below. Note, only the outputs from *data_pull.R* are loaded at the beginning of the script, whereas all others are loaded when needed farther into the script.
 
 | File Name                                              | Purpose                                      | Source                   |
-|------------------------------|-------------------------|-----------------|
+|-----------------------------|-------------------------|------------------|
 | .CSV outputs (varies by site types from *data_pull.R*) | WQ data to be processed.                     | WQP (via *data_pull.R*). |
 | WQ_Column_Manager.csv                                  | Quickly subset WQ dataset fields.            | Tetra Tech               |
 | ML_AU_Crosswalk.csv                                    | Crosswalk Monitoring Locations with AUs/     | AK DEC                   |
 | AK_DataSufficiency_Crosswalk_YYYYMMDD.csv              | Determine data sufficiency per AU/pollutant. | AK DEC                   |
 | beaches.shp                                            | Beaches AU shapefile for mapping.            | AK DEC                   |
-| bakes.shp                                              | Lakes AU shapefile for mapping.              | AK DEC                   |
+| lakes.shp                                              | Lakes AU shapefile for mapping.              | AK DEC                   |
 | marine.shp                                             | Marine AU shapefile for mapping.             | AK DEC                   |
 | rivers.shp                                             | Rivers AU shapefile for mapping.             | AK DEC                   |
 | cb_2018_us_state_500k.shp                              | US States shapefile for mapping.             | Tetra Tech               |
@@ -75,9 +75,9 @@ for(i in 1:length(csv_names)) {
 
 ## Section 1: Identifying TADA Flags
 
-After the initial setup and data read, the data processing is broken up into numbered steps that are divided into five different sections. Steps #1 through #13 are in the 'Identify TADA Flags' section. Each step represents a different *TADA* function that scans the input dataset for quality control issues. Note, every *TADA* function has an argument that asks whether the data should be "cleaned" which automatically removes erroneous or suspect data. We did not use the "clean" arguments to ensure that the WQ data could be reviewed by an analyst at the end.
+After the initial setup and data read, the data processing is broken up into numbered steps that are divided into five different sections. Steps #1 through #13 are in the 'Identify TADA Flags' section. Each step represents a different *TADA* function that scans the input dataset for quality control issues. Note, every *EPATADA* function has an argument that asks whether the data should be "cleaned" which automatically removes erroneous or suspect data. We did not use the "clean" arguments to ensure that the WQ data could be reviewed by an analyst at the end.
 
-Each *TADA* function appends one or more columns to the input dataset and are either updated versions of existing columns or flags for potential erroneous data points (every new *TADA* field has a 'TADA.' prefix). Within *data_processing.R*, the comments under each step name list the column names that the *TADA* function adds to the data. Here is the example for Step #1:
+Each *EPATADA* function appends one or more columns to the input dataset and are either updated versions of existing columns or flags for potential erroneous data points (every new *EPATADA* field has a 'TADA.' prefix). Within *data_processing.R*, the comments under each step name list the column names that the *EPATADA* function adds to the data. Here is the example for Step #1:
 
 ```{r}
 #| eval: false
@@ -86,7 +86,7 @@ Each *TADA* function appends one or more columns to the input dataset and are ei
 data_1 <- TADA_FlagResultUnit(all_input_data, clean = 'none')
 ```
 
-The specifics for each *TADA* function can be found using the '?' function in R or by reading through the [Module 1 TADA vignette](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd). The following functions are used to flag potential issues in the data (in order of appearance in *data_processing.R*):
+The specifics for each *EPATADA* function can be found using the '?' function in R or by reading through the [Module 1 TADA vignette](https://github.com/USEPA/TADA/blob/develop/vignettes/TADAModule1.Rmd). The following functions are used to flag potential issues in the data (in order of appearance in *data_processing.R*):
 
 1.  *TADA_FlagResultUnit*: Checks for errors in units
 
@@ -136,7 +136,7 @@ The specifics for each *TADA* function can be found using the '?' function in R 
 
 12. *TADA_SimpleCensoredMethods*: Determines if a sample is non-detect and if it needs to reassigned - currently set to assign non-detects to 0.5 the detection limit
 
-After the *TADA* functions are applied, Step #13 removes any columns that are entirely NA from the dataset.
+After the *EPATADA* functions are applied, Step #13 removes any columns that are entirely NA from the dataset.
 
 ```{r}
 #| eval: false
@@ -162,7 +162,7 @@ Section #2 uses the flags from Section #1 to remove erroneous data. This section
 
 15. The *WQ_Column_Manager.csv* is read in and the 'Keep_YN' column is used to filter out unnecessary columns. A quality control check ensures that the external manager file is up to date and prompts the user for an update if any new columns are detected in the WQ dataset.
 
-16. The WQ dataset is trimmed by removing invalid data and matching the sample units with their required units in the standards (mainly from *TADA* function fields) (see the code chunk below). The user can also review the data summary table generated in Step #14 to inform additional trimming steps. Note, that at the time of development, outputs from some *EPATADA* functions did not match the outputs described in the R documentation, therefore, the following crosswalk was assumed (see comments):
+16. The WQ dataset is trimmed by removing invalid data and matching the sample units with their required units in the standards (mainly from *EPATADA* function fields) (see the code chunk below). The user can also review the data summary table generated in Step #14 to inform additional trimming steps. Note, that at the time of development, outputs from some *EPATADA* functions did not match the outputs described in the R documentation, therefore, the following crosswalk was assumed (see comments):
 
     ```{r}
     #| eval: false
